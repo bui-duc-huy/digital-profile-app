@@ -1,4 +1,5 @@
-import { Link as RouterLink } from 'react-router-dom';
+import React, { useEffect } from "react"
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
 import { Card, Link, Container, Typography } from '@mui/material';
@@ -8,8 +9,10 @@ import useResponsive from '../hooks/useResponsive';
 import Page from '../components/Page';
 import Logo from '../components/Logo';
 // sections
-import { LoginForm } from '../sections/auth/login';
+import { ConectionWalletButton } from '../sections/auth/login';
 import AuthSocial from '../sections/auth/AuthSocial';
+import { useWallet } from '../contexts/useWallet';
+import { useIdentity } from '../contexts/useIdentity';
 
 // ----------------------------------------------------------------------
 
@@ -58,8 +61,25 @@ const ContentStyle = styled('div')(({ theme }) => ({
 
 export default function Login() {
   const smUp = useResponsive('up', 'sm');
-
   const mdUp = useResponsive('up', 'md');
+
+  const wallet = useWallet()
+  const identity = useIdentity()
+
+  const navigate = useNavigate()
+
+  const handleWalletConnect = async () => {
+    if (wallet.isConnected()) {
+      const identityDetail = await identity.getIdentity({ address: wallet.address })
+      if (identityDetail.errorCode === 500) {
+        navigate("/register")
+      }
+    }
+  }
+
+  useEffect(() => {
+    handleWalletConnect()
+  }, [wallet.isConnected()])
 
   return (
     <Page title="Login">
@@ -94,9 +114,7 @@ export default function Login() {
 
             <Typography sx={{ color: 'text.secondary', mb: 5 }}>Enter your details below.</Typography>
 
-            <AuthSocial />
-
-            <LoginForm />
+            {!wallet.isConnected() ? <ConectionWalletButton /> : null}
 
             {!smUp && (
               <Typography variant="body2" align="center" sx={{ mt: 3 }}>

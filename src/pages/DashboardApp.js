@@ -1,4 +1,5 @@
 import { faker } from '@faker-js/faker';
+import { useNavigate } from "react-router-dom"
 // @mui
 import { useTheme } from '@mui/material/styles';
 import { Grid, Container, Typography } from '@mui/material';
@@ -17,6 +18,9 @@ import {
   AppCurrentSubject,
   AppConversionRates,
 } from '../sections/@dashboard/app';
+
+import { useAuth } from '../contexts/useAuth';
+import { useWallet } from '../contexts/useWallet';
 
 // ----------------------------------------------------------------------
 

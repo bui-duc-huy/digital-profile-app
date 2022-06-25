@@ -11,8 +11,26 @@ const WalletContextValue = () => {
     return !!ethereum
   }
 
+  const isConnected = () => {
+    return !!address
+  }
+
+  const connect = async () => {
+    const accounts = (await window.ethereum.request({ method: 'eth_requestAccounts' }))
+    setAddress(accounts[0])
+
+    return accounts[0]
+  }
+
+  const sendTransaction = async ({ toAddress, data, value }) => {
+
+  }
+
   return {
-    isInstallWallet
+    address,
+    isInstallWallet,
+    isConnected,
+    connect
   }
 }
 

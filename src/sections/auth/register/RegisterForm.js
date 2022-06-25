@@ -3,39 +3,90 @@ import { useState } from 'react';
 import { useFormik, Form, FormikProvider } from 'formik';
 import { useNavigate } from 'react-router-dom';
 // material
-import { Stack, TextField, IconButton, InputAdornment } from '@mui/material';
+import { Stack, TextField, Input, Button, ImageList, ImageListItem } from '@mui/material';
 import { LoadingButton } from '@mui/lab';
-// component
-import Iconify from '../../../components/Iconify';
+import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
+import { useWallet } from '../../../contexts/useWallet';
+import { useIdentityFactoryContract } from '../../../hooks/useIdentityFactoryContract';
+
 
 // ----------------------------------------------------------------------
 
 export default function RegisterForm() {
   const navigate = useNavigate();
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [dob, setDob] = useState("");
+  const [image, setImage] = useState()
+  const wallet = useWallet()
+  const identityFactoryContract = useIdentityFactoryContract()
+
+
+  const handleFormSubmit = async (data) => {
+    console.log(identityFactoryContract)
+
+    const afterUploadFile = (url) => {
+    }
+
+    // uploadFile(image.result, afterUploadFile)
+  }
 
   const RegisterSchema = Yup.object().shape({
-    firstName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('First name required'),
-    lastName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Last name required'),
+    fullName: Yup.string().min(2, 'Too Short!').max(50, 'Too Long!').required('Full name required'),
     email: Yup.string().email('Email must be a valid email address').required('Email is required'),
-    password: Yup.string().required('Password is required'),
   });
 
   const formik = useFormik({
     initialValues: {
-      firstName: '',
-      lastName: '',
+      fullName: '',
       email: '',
-      password: '',
     },
     validationSchema: RegisterSchema,
-    onSubmit: () => {
-      navigate('/dashboard', { replace: true });
-    },
+    onSubmit: handleFormSubmit
   });
 
   const { errors, touched, handleSubmit, isSubmitting, getFieldProps } = formik;
+
+  const uploadFile = async (file, callBack) => {
+    const url = `https://api.cloudinary.com/v1_1/duchuy/upload`;
+    const xhr = new XMLHttpRequest();
+    const fd = new FormData();
+    xhr.open("POST", url, true);
+    xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
+
+    // // Update progress (can be used to show progress indicator)
+    // xhr.upload.addEventListener("progress", (e) => {
+    //     setProgress(Math.round((e.loaded * 100.0) / e.total));
+    //     console.log(Math.round((e.loaded * 100.0) / e.total));
+    // });
+
+    xhr.onreadystatechange = (e) => {
+      if (xhr.readyState === 4 && xhr.status === 200) {
+        const response = JSON.parse(xhr.responseText);
+
+        callBack(response.secure_url);
+      }
+    };
+
+    fd.append(
+      "upload_preset",
+      "d62ioptw"
+    );
+    fd.append("tags", "browser_upload");
+    fd.append("file", file);
+    xhr.send(fd);
+  }
+  const handleUploadFile = (e) => {
+    const file = e.target.files[0]
+    const reader = new FileReader()
+
+    reader.readAsDataURL(file);
+
+    reader.onloadend = (result) => {
+      setImage(result.currentTarget);
+    }
+  }
 
   return (
     <FormikProvider value={formik}>
@@ -44,24 +95,15 @@ export default function RegisterForm() {
           <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
             <TextField
               fullWidth
-              label="First name"
-              {...getFieldProps('firstName')}
-              error={Boolean(touched.firstName && errors.firstName)}
-              helperText={touched.firstName && errors.firstName}
-            />
-
-            <TextField
-              fullWidth
-              label="Last name"
-              {...getFieldProps('lastName')}
-              error={Boolean(touched.lastName && errors.lastName)}
-              helperText={touched.lastName && errors.lastName}
+              label="Full name"
+              {...getFieldProps('fullName')}
+              error={Boolean(touched.fullName && errors.fullName)}
+              helperText={touched.fullName && errors.fullName}
             />
           </Stack>
 
           <TextField
             fullWidth
-            autoComplete="username"
             type="email"
             label="Email address"
             {...getFieldProps('email')}
@@ -69,24 +111,43 @@ export default function RegisterForm() {
             helperText={touched.email && errors.email}
           />
 
-          <TextField
-            fullWidth
-            autoComplete="current-password"
-            type={showPassword ? 'text' : 'password'}
-            label="Password"
-            {...getFieldProps('password')}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton edge="end" onClick={() => setShowPassword((prev) => !prev)}>
-                    <Iconify icon={showPassword ? 'eva:eye-fill' : 'eva:eye-off-fill'} />
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-            error={Boolean(touched.password && errors.password)}
-            helperText={touched.password && errors.password}
-          />
+          <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <DatePicker
+              value={dob}
+              label="Day of Birth"
+              onChange={(newValue) => {
+                setDob(newValue);
+              }}
+              renderInput={(params) => <TextField fullWidth  {...params} error={Boolean(touched.dob && errors.dob)} />}
+            />
+          </LocalizationProvider>
+          <>{ /* eslint-disable-next-line jsx-a11y/label-has-associated-control */}</>
+          <label htmlFor="contained-button-file">
+            {
+              image ? (
+                <div>
+                  <Input accept="image/*" id="contained-button-file" style={{ display: "none" }} multiple type="file" onChange={handleUploadFile} />
+                  <ImageList cols={1}>
+                    <ImageListItem key={"id"}>
+                      <img
+                        src={image.result}
+                        alt={"avatar"}
+                        loading="lazy"
+                      />
+                    </ImageListItem>
+                  </ImageList>
+                </div>
+              ) : (
+                <div>
+                  <Input accept="image/*" id="contained-button-file" style={{ display: "none" }} multiple type="file" onChange={handleUploadFile} />
+                  <Button fullWidth variant="contained" component="span">
+                    Upload Image For Your Identity
+                  </Button>
+                </div>
+              )
+            }
+          </label>
+
 
           <LoadingButton fullWidth size="large" type="submit" variant="contained" loading={isSubmitting}>
             Register

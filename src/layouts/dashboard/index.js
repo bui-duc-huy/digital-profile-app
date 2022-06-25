@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useNavigate } from 'react-router-dom';
 // material
 import { styled } from '@mui/material/styles';
 //
 import DashboardNavbar from './DashboardNavbar';
 import DashboardSidebar from './DashboardSidebar';
 import { useAuth } from '../../contexts/useAuth';
+import { useWallet } from '../../contexts/useWallet';
 
 // ----------------------------------------------------------------------
 
@@ -36,8 +37,14 @@ const MainStyle = styled('div')(({ theme }) => ({
 export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
   const auth = useAuth()
+  const wallet = useWallet()
+  const navigate = useNavigate()
 
-  console.log(auth)
+  console.log(!auth.isAuth || !wallet.isInstallWallet())
+
+  if (!auth.isAuth || !wallet.isInstallWallet()) {
+    navigate("/login")
+  }
 
   return (
     <RootStyle>

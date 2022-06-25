@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 // @mui
 import { styled } from '@mui/material/styles';
@@ -61,6 +62,7 @@ export default function Register() {
 
   const mdUp = useResponsive('up', 'md');
 
+
   return (
     <Page title="Register">
       <RootStyle>
@@ -91,9 +93,7 @@ export default function Register() {
               Get started absolutely free.
             </Typography>
 
-            <Typography sx={{ color: 'text.secondary', mb: 5 }}>Free forever. No credit card needed.</Typography>
-
-            <AuthSocial />
+            <Typography sx={{ color: 'text.secondary', mb: 5 }}>Bring power of blockchain into your life.</Typography>
 
             <RegisterForm />
 
