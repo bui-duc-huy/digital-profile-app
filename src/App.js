@@ -5,15 +5,21 @@ import ThemeProvider from './theme';
 // components
 import ScrollToTop from './components/ScrollToTop';
 import { BaseOptionChartStyle } from './components/chart/BaseOptionChart';
+import { AuthContextProvider } from './contexts/useAuth';
+import { WalletContextProvider } from './contexts/useWallet';
 
 // ----------------------------------------------------------------------
 
 export default function App() {
   return (
-    <ThemeProvider>
-      <ScrollToTop />
-      <BaseOptionChartStyle />
-      <Router />
-    </ThemeProvider>
+    <AuthContextProvider>
+      <WalletContextProvider>
+        <ThemeProvider>
+          <ScrollToTop />
+          <BaseOptionChartStyle />
+          <Router />
+        </ThemeProvider>
+      </WalletContextProvider>
+    </AuthContextProvider>
   );
 }

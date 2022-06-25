@@ -5,6 +5,7 @@ import { styled } from '@mui/material/styles';
 //
 import DashboardNavbar from './DashboardNavbar';
 import DashboardSidebar from './DashboardSidebar';
+import { useAuth } from '../../contexts/useAuth';
 
 // ----------------------------------------------------------------------
 
@@ -34,6 +35,9 @@ const MainStyle = styled('div')(({ theme }) => ({
 
 export default function DashboardLayout() {
   const [open, setOpen] = useState(false);
+  const auth = useAuth()
+
+  console.log(auth)
 
   return (
     <RootStyle>
