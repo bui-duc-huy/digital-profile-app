@@ -16,21 +16,50 @@ const WalletContextValue = () => {
   }
 
   const connect = async () => {
-    const accounts = (await window.ethereum.request({ method: 'eth_requestAccounts' }))
+    const accounts = (await ethereum.request({ method: 'eth_requestAccounts' }))
     setAddress(accounts[0])
 
     return accounts[0]
   }
 
-  const sendTransaction = async ({ toAddress, data, value }) => {
+  const sendTransaction = async ({ to, data, value }) => {
+    const transactionParameters = {
+      to, // Required except during contract publications.
+      from: address, // must match user's active address.
+      value, // Only required to send ether to the recipient from the initiating external account.
+      data, // Optional, but used for defining smart contract creation and interaction.
+    };
 
+    const txHash = await ethereum.request({
+      method: 'eth_sendTransaction',
+      params: [transactionParameters],
+    });
+
+    return txHash
+  }
+
+  const ethCall = async ({ to, data }) => {
+    const transactionParameters = {
+      to, // Required except during contract publications.
+      from: address, // must match user's active address.
+      data, // Optional, but used for defining smart contract creation and interaction.
+    };
+
+    const response = await ethereum.request({
+      method: 'eth_call',
+      params: [transactionParameters],
+    });
+
+    return response
   }
 
   return {
     address,
     isInstallWallet,
     isConnected,
-    connect
+    connect,
+    sendTransaction,
+    ethCall
   }
 }
 

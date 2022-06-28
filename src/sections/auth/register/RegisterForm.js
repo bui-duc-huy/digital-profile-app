@@ -10,6 +10,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 import { useWallet } from '../../../contexts/useWallet';
 import { useIdentityFactoryContract } from '../../../hooks/useIdentityFactoryContract';
+import { useApi } from '../../../hooks/useApi';
 
 
 // ----------------------------------------------------------------------
@@ -21,15 +22,30 @@ export default function RegisterForm() {
   const [image, setImage] = useState()
   const wallet = useWallet()
   const identityFactoryContract = useIdentityFactoryContract()
-
+  const api = useApi()
 
   const handleFormSubmit = async (data) => {
-    console.log(identityFactoryContract)
+    if (!image || !image.result) {
+      return
+    }
+    const afterUploadFile = async (url) => {
+      const identityAddress = await identityFactoryContract.getIdentityAddress({ email: data.email })
+      console.log(identityAddress)
+      const { transactionHash } = await identityFactoryContract.deployIdentity({ email: data.email })
 
-    const afterUploadFile = (url) => {
+      const response = await api.createIdentity({
+        address: wallet.address,
+        email: data.email,
+        txHash: transactionHash,
+        fullName: data.fullName,
+        identityAddress
+      })
+      console.log(response)
+
+      navigate("/")
     }
 
-    // uploadFile(image.result, afterUploadFile)
+    uploadFile(image.result, afterUploadFile)
   }
 
   const RegisterSchema = Yup.object().shape({

@@ -9,9 +9,9 @@ const IdentityContextValue = () => {
 
   const getIdentity = async ({ address }) => {
     const identityDetail = await API.getIdentity({ address })
-    setIdentity(identityDetail)
+    setIdentity(identityDetail.data)
 
-    return identityDetail
+    return identityDetail.data
   }
 
   return {

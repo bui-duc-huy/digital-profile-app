@@ -73,6 +73,8 @@ export default function Login() {
       const identityDetail = await identity.getIdentity({ address: wallet.address })
       if (identityDetail.errorCode === 500) {
         navigate("/register")
+      } else {
+        navigate("/")
       }
     }
   }

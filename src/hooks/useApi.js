@@ -26,7 +26,18 @@ export const useApi = () => {
   }
 
   const createIdentity = async ({ address, email, fullName, txHash, identityAddress }) => {
-
+    try {
+      const identity = await BASE_API.post(`/identity`, {
+        address,
+        email,
+        fullName,
+        txHash,
+        identityAddress
+      })
+      return identity.data
+    } catch (err) {
+      return err.response.data
+    }
   }
 
   return {

@@ -10,19 +10,26 @@ import NotFound from './pages/Page404';
 import Register from './pages/Register';
 import Products from './pages/Products';
 import DashboardApp from './pages/DashboardApp';
+import Keys from './pages/Keys';
+import Claims from './pages/Claims';
+import { useWallet } from './contexts/useWallet';
 
 // ----------------------------------------------------------------------
 
 export default function Router() {
+  const wallet = useWallet()
+  let isAuth = true
+  if (!wallet.isInstallWallet() || !wallet.isConnected()) {
+    isAuth = false
+  }
   return useRoutes([
     {
       path: '/dashboard',
-      element: <DashboardLayout />,
+      element: isAuth ? <DashboardLayout /> : <Navigate to="/login" />,
       children: [
         { path: 'app', element: <DashboardApp /> },
-        { path: 'user', element: <User /> },
-        { path: 'products', element: <Products /> },
-        { path: 'blog', element: <Blog /> },
+        { path: 'keys', element: <Keys /> },
+        { path: 'claims', element: <Claims /> },
       ],
     },
     {
